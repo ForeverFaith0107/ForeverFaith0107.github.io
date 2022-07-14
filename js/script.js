@@ -1,138 +1,127 @@
-(function($){
-  // Search
-  var $searchWrap = $('#search-form-wrap'),
-    isSearchAnim = false,
-    searchAnimDuration = 200;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+   
+    
+    <style>
+        .player{
+            position: absolute;
+            top: 0;
+            left: 0;
+           
+            width: 100px;
+            height: 100px;
+            z-index: 1;
+        }
+        .player>img{
+            width: 100%;
 
-  var startSearchAnim = function(){
-    isSearchAnim = true;
-  };
+        }
+        .shit{
+            position:absolute;
+            top:600px;
+            left:700px;
+            width: 60px;
+            height: 60px;
 
-  var stopSearchAnim = function(callback){
-    setTimeout(function(){
-      isSearchAnim = false;
-      callback && callback();
-    }, searchAnimDuration);
-  };
+        }
+        .shit>img{
+            width: 100%;
+        }
+        .score{
+            position: fixed;
+            top: 50px;
+            right: 50px;
+            padding-left: 20px;
+            
+            width: 200px;
+            height: 50px;
+            line-height: 50px;
+            background-color: skyblue;
+            border-radius: 25px;
+        }
+    </style>
+</head>
+<body>
+    <audio src="./hdl.mp3"   ></audio>
+    <div class="player">
+        <img src="./images/cyf.jpg" alt="">
+    </div>
+    <div class="shit">
+        <img src="./images/shit.webp" alt="">
+    </div>
+    <div class="score">
+       您的得分：<span class="fenshu"></span>
+        
+    </div>
+    
 
-  $('#nav-search-btn').on('click', function(){
-    if (isSearchAnim) return;
+    <script>
+        var player=document.querySelector('.player')
+        var shit=document.querySelector('.shit')
+        var fenshu=document.querySelector('.fenshu')
+        var audio=document.querySelector('audio')
+        fenshu.innerHTML=0
+       
+      
+        document.addEventListener('mouseover',function(e){
+            var x=e.pageX;
+            var y=e.pageY;
+            
+            
+            player.style.top=y-50+'px';
+            player.style.left=x-50+'px';
 
-    startSearchAnim();
-    $searchWrap.addClass('on');
-    stopSearchAnim(function(){
-      $('.search-form-input').focus();
-    });
-  });
+            
 
-  $('.search-form-input').on('blur', function(){
-    startSearchAnim();
-    $searchWrap.removeClass('on');
-    stopSearchAnim();
-  });
+        })
 
-  // Share
-  $('body').on('click', function(){
-    $('.article-share-box.on').removeClass('on');
-  }).on('click', '.article-share-link', function(e){
-    e.stopPropagation();
+        setInterval(()=>{
+            shit.style.top=Math.floor(Math.random()*500)+'px'
+            shit.style.left=Math.floor(Math.random()*1200)+'px'
+            console.log(shit.style.top);
+            console.log(shit.style.left);
+            audio.play()
+            
+            
+            var c=touch()
+            console.log(c[0]);
+            console.log(c[1]);
+            setTimeout(function(){
+                if(c[0]>-20&&c[0]<80){
+                if(c[1]>-20&&c[1]<80){
+                    fenshu.innerHTML++
+                }
+            }
 
-    var $this = $(this),
-      url = $this.attr('data-url'),
-      encodedUrl = encodeURIComponent(url),
-      id = 'article-share-box-' + $this.attr('data-id'),
-      title = $this.attr('data-title'),
-      offset = $this.offset();
+            },1000)
+           
+            
+            
+           }
+            
+            
+            
+            
 
-    if ($('#' + id).length){
-      var box = $('#' + id);
-
-      if (box.hasClass('on')){
-        box.removeClass('on');
-        return;
-      }
-    } else {
-      var html = [
-        '<div id="' + id + '" class="article-share-box">',
-          '<input class="article-share-input" value="' + url + '">',
-          '<div class="article-share-links">',
-            '<a href="https://twitter.com/intent/tweet?text=' + encodeURIComponent(title) + '&url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
-            '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
-            '<a href="http://pinterest.com/pin/create/button/?url=' + encodedUrl + '" class="article-share-pinterest" target="_blank" title="Pinterest"></a>',
-            '<a href="https://www.linkedin.com/shareArticle?mini=true&url=' + encodedUrl + '" class="article-share-linkedin" target="_blank" title="LinkedIn"></a>',
-          '</div>',
-        '</div>'
-      ].join('');
-
-      var box = $(html);
-
-      $('body').append(box);
-    }
-
-    $('.article-share-box.on').hide();
-
-    box.css({
-      top: offset.top + 25,
-      left: offset.left
-    }).addClass('on');
-  }).on('click', '.article-share-box', function(e){
-    e.stopPropagation();
-  }).on('click', '.article-share-box-input', function(){
-    $(this).select();
-  }).on('click', '.article-share-box-link', function(e){
-    e.preventDefault();
-    e.stopPropagation();
-
-    window.open(this.href, 'article-share-box-window-' + Date.now(), 'width=500,height=450');
-  });
-
-  // Caption
-  $('.article-entry').each(function(i){
-    $(this).find('img').each(function(){
-      if ($(this).parent().hasClass('fancybox') || $(this).parent().is('a')) return;
-
-      var alt = this.alt;
-
-      if (alt) $(this).after('<span class="caption">' + alt + '</span>');
-
-      $(this).wrap('<a href="' + this.src + '" data-fancybox=\"gallery\" data-caption="' + alt + '"></a>')
-    });
-
-    $(this).find('.fancybox').each(function(){
-      $(this).attr('rel', 'article' + i);
-    });
-  });
-
-  if ($.fancybox){
-    $('.fancybox').fancybox();
-  }
-
-  // Mobile nav
-  var $container = $('#container'),
-    isMobileNavAnim = false,
-    mobileNavAnimDuration = 200;
-
-  var startMobileNavAnim = function(){
-    isMobileNavAnim = true;
-  };
-
-  var stopMobileNavAnim = function(){
-    setTimeout(function(){
-      isMobileNavAnim = false;
-    }, mobileNavAnimDuration);
-  }
-
-  $('#main-nav-toggle').on('click', function(){
-    if (isMobileNavAnim) return;
-
-    startMobileNavAnim();
-    $container.toggleClass('mobile-nav-on');
-    stopMobileNavAnim();
-  });
-
-  $('#wrap').on('click', function(){
-    if (isMobileNavAnim || !$container.hasClass('mobile-nav-on')) return;
-
-    $container.removeClass('mobile-nav-on');
-  });
-})(jQuery);
+        ,3000)
+       
+        function touch(){
+           var a=parseInt(shit.style.left)-parseInt(player.style.left);
+           var b=parseInt(shit.style.top)-parseInt(player.style.top);
+           return [a,b]
+          
+                    
+            
+        }
+       
+      
+       
+    </script>
+    
+</body>
+</html>
